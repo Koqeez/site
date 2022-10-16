@@ -29,7 +29,7 @@ plt.show()
     <class 'numpy.ndarray'> [0.59733842 0.48194544 0.69164772 0.8244296  0.70036234 0.46309971
      0.23276791 0.84362517 0.81551825 0.26769811]
 
-![png](/intrests/markdow_files/markdow_0_1.png)
+![png](/site/intrests/markdow_files/markdow_0_1.png)
 
 ```python
 import numpy as np
@@ -534,4 +534,4 @@ bAAAAAAAAAAAAAAAAC1pbHN0AAAAJal0b28AAAAdZGF0YQAAAAEAAAAATGF2ZjU5LjI3LjEwMA==
   Your browser does not support the video tag.
 </video>
 
-![png](intrests/markdow_files/markdow_1_1.png)
+![png](/site/intrests/markdow_files/markdow_1_1.png)
