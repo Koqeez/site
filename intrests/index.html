@@ -74,7 +74,7 @@ description of past and current projects
 <div id="div_id4"></div>
 <h3>Machine learning with APIs</h3>
 <hr>
-<p>I was able to download music data from Spotify using <b>spotipy</b> module, analyse it using <b>pandas</b> module, 
+<p>I was able to download music data from Spotify using <b>spotify</b> module, analyse it using <b>pandas</b> module, 
     produce an interactive plot using <b>plotly</b> module, and do some very basic machine learning using <b>scikit-learn</b>. 
     In the process, I learnt a great deal about <b>pandas</b> and how <b>web APIs</b> work, such that I'm pretty keen 
     to explore some more interesting datasets in the future.</p>
@@ -93,9 +93,141 @@ description of past and current projects
 <br>
 <br>
 
-
-
 <div id="div_id6"></div>
+<h3>Detection of retinal funcid vessels</h3>
+<hr>
+<p>In the report, I will present the problem and its solution in two ways with a description. The first one uses classical image processing techniques,
+    while the second one uses supervised machine learning methods.</p>
+<h5>Image processing method</h5>
+<ul>
+    <li>1 I chose the green channel from the RGB model.
+        I visualized all 3 RGB channels and found that the green channel allows me to see the highest vessels and should definitely make it easier for the program to find them.
+    </li><li>
+        2 I equalized the histogram (Histogram equalization).
+        To increase the differences between different shades in an image, I useed "histogram equalization". I chose the Contrast Limited Adaptive Histogram Equalization method because it seems to be the most effective.
+    </li><li>
+        3.Using the morphological operations of opening and closing, I extracted the background of blood vessels.
+        I applied alternate opening and closing operations and used different kernel (kernel) sizes, extracted the background of our blood vessels from the image.
+    </li><li>
+        4 I subtracted the image from the surrounding background.
+        Since the blood vessels are dark (smaller pixel value), I subtracted the image from the background. 
+        As a result, I should be left with only the vessels.
+    </li><li>
+        5 I created an interference mask.
+        Using the opencv library and the fact that the blood vessels are connected in longer lines, I drew the contours I found on the mask, which have a size smaller than the set size.
+    </li><li>
+        6 I filtered the image with blood vessels.
+        Using the previously created mask, I extracted only those pixels from the image that were not recognized as noise by the mask were not recognized as noise.
+    </li><li>   
+        8. I performed thresholding.
+        Using the opencv library,  extracted the blood vessel mask using the threshold function.
+    </li>
+</ul>
+<h5>Method using supervised learning</h5>
+    <ul>
+        <li> Data preparation
+            To begin with, I divided the dataset into test and training. 
+            In total, the test set accounts for about 13% of the examples. When teaching, we divide the training set, into proper training and validation according to 5-fold cross-validation.
+            I applied the image processing techniques from the previous method. 
+            First, I converted the image to CIELAB color space and applied mild bilateral filtering to remove noise, while preserving edges.
+            Then I normalized the L-channel histogram using the CLAHE method (clip limit = 2, grid size = 8).
+            I divided each image and its mask into 5x5 slices using the function
+            skimage.view_as_windows. As a slice label, I assumed "1" if the center pixel of the mask slice
+            is white, meaning it is a vessel, and "0" otherwise.</li>
+            <li>
+                Feature extraction
+        For each slice, I determined the feature vector for the classifier: the mean value and standard deviation of each RGB channel (2 × 3 features), central moments (10 features), rotational moments (7 features) and
+        Hu moments (7 features). In total, the vector contains 40 features. 
+        I standardized the features of the examples using StandardScaler, so that each feature has a mean of zero and a variance of one (we only count the mean and variance on examples from the training set). I did this so that the algorithm would not prioritize features based on mean and variance. Despite the fact that standardization is not required for the final chosen algorithm sweep - Random Forest, I did not skip this step so that I could more easily test other algorithms that required it.
+            </li>
+            <li>
+                Data balancing
+                Since there is a large disparity of classes in the learning set, I used the random undersampling technique. For this I used a ready-made implementation from the imblearn library. After balancing
+                the proportion of positive to negative classes in the training set was 1.
+                Learning algorithm
+                For classification, I used the Random Forest algorithm, among other reasons because of the low computational requirements
+                computational requirements, despite satisfactory results in various classification and regression tasks.
+                I set the number of trees to n_estimators = 500, mainly due to my hardware limitations.
+                It is worth mentioning that increasing this parameter usually benefits the quality of the model, among other things among other things, reducing possible overfitting.
+                As the maximum number of features considered by one tree, I assumed the root of the total number of features. Such a setting is often recommended for classification, to allow trees to "become experts" in a
+                narrow domain of features.
+                Another important parameter is the maximum tree depth, which I set to max_depth = 15.
+                The default setting in Scikit-learn allows trees to grow without limitation, which results in excessive
+                adjustment to the learning data (overfitting).
+                In addition, I set the parameters min_samples_leaf = 0.005 and min_samples_split = 0.03.
+            </li>
+    </ul>
+<br>
+<h4>Things I needed to know before doing it.</h4>
+<p>
+    <ul>
+        <li>Numpy: Which was responsible for calculations and operations on matrices - 
+            numpy.argmax
+        </li>
+        <hr>
+        <li> Pandas: Creating data structures and operations on data tables</li>
+        <hr>
+        <li> Part of Scikit-learn: Provides off-the-shelf machine learning tools</li>
+        <hr>
+        <li>Imblearn:  Provides routines for correcting unbalanced data</li>
+        <hr>
+        <li>OpenCV and Scikit-Image: Responsible for image processing.</li>
+        <hr>
+        <li>Matplotlib: Basic visualization or presentation of images.</li>
+        <hr>
+        <li>The concept of standard error and standard deviation.</li>
+        <hr>
+        <li>The concept of dividing an image into moments and creating categories from a slice of the image </li>
+        <hr>
+        <li>The machine learning element: the error matrix - and the basics of model evaluation.</li>
+        <hr>
+        <li>CLAHE Histogram Equalization </li>
+        <hr>
+        <li>F-strings in Python</li>
+        <hr>
+        <li>Image channels</li>
+        <hr>
+        <li>Morphological operations - morphological operations like Erosion, Dilation, Opening, Closing etc.</li>
+        <hr>
+    </ul>
+</p>
+<a href="/site/intrests/eye.html">Image processing method.</a>
+<br>
+<a href="/site/intrests/eye-advanced.html">Method using supervised learning.</a>
+<br>
+<h6>Resources</h6>
+<ul>
+    <li>http://sigmaquality.pl/uncategorized/model-regresji-logistycznej-czesc-2-oversampling/</li>
+    <li>http://rmantiuk.zut.edu.pl/data/wyklad_przetwarzanie_obrazow.pdf</li>
+    <li>http://www.cs.put.poznan.pl/alawrynowicz/SI_ML_CNN_2020_lawrynowicz.pdf</li>
+    <li>https://datascience.eu/pl/uczenie-maszynowe/k-krotna-walidacja-krzyzowa/</li>
+    <li>https://brain.fuw.edu.pl/edu/index.php/Uczenie_maszynowe_i_sztuczne_sieci_neuronowe/DrzewaDecyzyjne#Jak_mo.C5.BCna_wyobra.C5.BCa.C4.87_sobie_drzewo_decyzyjne</li>
+    <li>https://ksopyla.com/data-science/precision-recall-f1-miary-oceny-klasyfikatora/</li>
+    <li>http://sigmaquality.pl/uncategorized/model-regresji-logistycznej-czesc-2-oversampling/</li>
+    <li>https://numpy.org/doc/stable/reference/generated/numpy.argmax.html</li>
+    <li>https://imbalanced-learn.org/stable/references/generated/imblearn.under_sampling.RandomUnderSampler.html</li>
+    <li>https://en.wikipedia.org/wiki/Image_moment</li>
+    <li>https://www.geeksforgeeks.org/numpy-mean-in-python/</li>
+    <li>https://www.youtube.com/watch?v=esskJJF8pCc</li>
+    <li>https://numpy.org/doc/stable/reference/generated/numpy.std.html</li>
+    <li>https://www.neurisium.com/blog/the-future-of-six-sigma-machine-learning-is-redefining-industrial-precision</li>
+    <li>https://pyimagesearch.com/2014/03/03/charizard-explains-describe-quantify-image-using-feature-vectors/</li>
+    <li>https://learnopencv.com/shape-matching-using-hu-moments-c-python/</li>
+    <li>https://www.youtube.com/watch?v=4i4C3ejTdgs</li>
+    <li>https://docs.opencv.org/4.x/d3/dc0/group__imgproc__shape.html#gadf1ad6a0b82947fa1fe3c3d497f260e0</li>
+    <li>https://opencv24-python-tutorials.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_morphological_ops/py_morphological_ops.html</li>
+    <li>https://www.geeksforgeeks.org/numpy-ravel-python/</li>
+    <li>https://www.youtube.com/watch?v=jWShMEhMZI4</li>
+    <li>https://en.wikipedia.org/wiki/Adaptive_histogram_equalization</li>
+    <li>https://matplotlib.org/stable/tutorials/introductory/images.html</li>
+    <li>http://www.cs.put.poznan.pl/ibladek/students/alai/guide_ml.pdf</li>
+    <li>BOOK: Biomedical image processing by Thomas M. Deserno</li>
+</ul>
+<br>
+<br>
+
+
+<div id="div_id7"></div>
 <h3 id="software">Software</h3>
 <hr>
 <p>
